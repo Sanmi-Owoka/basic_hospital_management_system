@@ -16,6 +16,6 @@ class TestDoctorSignup(TestSetUp):
             "password": ""
         }
         client = APIClient()
-        response = self.client.post(self.register_url, self.register_data, format='json')
+        response = self.client.post(self.register_url, registration_data, format='json')
         print(response.json(), response.status_code)
         assert response.status_code == 400

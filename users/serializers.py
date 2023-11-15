@@ -58,3 +58,24 @@ class GetDoctorsSerializers(serializers.ModelSerializer):
             "username",
             "date_joined",
         ]
+
+
+class LoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=50, required=True)
+    password = serializers.CharField(max_length=50, required=True, min_length=3, write_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "first_name",
+            "last_name",
+            "username",
+            "date_joined",
+            "password",
+        ]
+
+        read_only_fields = [
+            "first_name",
+            "last_name",
+            "date_joined"
+        ]
