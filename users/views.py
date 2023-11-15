@@ -311,3 +311,36 @@ class BookAppointmentViews(generics.GenericAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class GetAppointmentView(generics.GenericAPIView):
+    serializer_class = BookAppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            if user.user_type == "patient":
+                get_appointment = Appointment.objects.filter(patient=user)
+            else:
+                get_appointment = Appointment.objects.filter(doctor=user)
+            response = self.serializer_class(get_appointment, many=True)
+            return Response(
+                {
+                    "message": "success",
+                    "data": {
+                        "appointment": response.data,
+                    },
+                    "errors": "null"
+                },
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {
+                    "message": "failure",
+                    "data": "null",
+                    "errors": f"{e}"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
