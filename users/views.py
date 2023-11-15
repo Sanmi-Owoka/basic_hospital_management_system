@@ -344,3 +344,30 @@ class GetAppointmentView(generics.GenericAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class GetProfileView(generics.GenericAPIView):
+    serializer_class = GetDoctorsSerializers
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            response = self.serializer_class(user)
+            return Response(
+                {
+                    "message": "success",
+                    "data": response.data,
+                    "errors": "null"
+                },
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {
+                    "message": "failure",
+                    "data": "null",
+                    "errors": f"{e}"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
