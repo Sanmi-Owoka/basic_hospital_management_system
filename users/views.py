@@ -2,11 +2,17 @@ from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from users.serializers import SignUpSerializer, OnboardPatientSerializer, GetDoctorsSerializers, LoginSerializer
+from users.serializers import (
+    SignUpSerializer,
+    OnboardPatientSerializer,
+    GetDoctorsSerializers,
+    LoginSerializer,
+    BookAppointmentSerializer
+)
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
-from users.models import User
+from users.models import User, Appointment
 
 
 class DoctorSignUpViews(generics.GenericAPIView):
@@ -218,25 +224,90 @@ class LoginView(generics.GenericAPIView):
                 {
                     "message": "failure",
                     "data": "null",
-                    "errors": e
+                    "errors": f"{e}"
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
 
 
 class BookAppointmentViews(generics.GenericAPIView):
-    serializer_class = None
+    serializer_class = BookAppointmentSerializer
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        patient = request.user
-        serializer = self.serializer_class(request.data)
-        if not serializer.is_valid():
+        try:
+            patient = request.user
+            serializer = self.serializer_class(data=request.data)
+            if not serializer.is_valid():
+                return Response(
+                    {
+                        "message": "failure",
+                        "data": "null",
+                        "errors": serializer.errors
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            doctor_username = serializer.validated_data["doctor_username"]
+            appointment_time = serializer.validated_data["appointment_time"]
+            get_doctor = User.objects.filter(username=doctor_username)
+
+            if not get_doctor.exists():
+                return Response(
+                    {
+                        "message": "failure",
+                        "data": "null",
+                        "errors": f"Doctor with username: {doctor_username} does not exists"
+                    },
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            get_doctor = get_doctor.first()
+            if not get_doctor.user_type == "doctor":
+                return Response(
+                    {
+                        "message": "failure",
+                        "data": "null",
+                        "errors": f"Doctor with username: {doctor_username} does not exists"
+                    },
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            check_doctor_has_appointment = Appointment.objects.filter(
+                doctor=get_doctor,
+                appointment_time=appointment_time
+            )
+
+            if check_doctor_has_appointment.exists():
+                return Response(
+                    {
+                        "message": "failure",
+                        "data": "null",
+                        "errors": f"Doctor already has an appointment at the slated time"
+                    },
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            new_appointment = Appointment.objects.create(
+                doctor=get_doctor,
+                patient=patient,
+                appointment_time=appointment_time
+            )
+            response = self.serializer_class(new_appointment)
+            return Response(
+                {
+                    "message": "success",
+                    "data": {
+                        "appointment": response.data,
+                    },
+                    "errors": "null"
+                },
+                status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
             return Response(
                 {
                     "message": "failure",
                     "data": "null",
-                    "errors": serializer.errors
+                    "errors": f"{e}"
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
