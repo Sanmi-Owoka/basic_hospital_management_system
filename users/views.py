@@ -64,6 +64,15 @@ class OnboardPatientViews(generics.GenericAPIView):
 
     def post(self, request):
         try:
+            if not request.user.user_type == "doctor":
+                return Response(
+                    {
+                        "message": "failure",
+                        "data": "null",
+                        "errors": "user unauthorized for this action"
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
             data = request.data
             temp_password = request.data["password"]
             serializer = self.serializer_class(data=data)
