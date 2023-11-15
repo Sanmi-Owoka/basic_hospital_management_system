@@ -65,7 +65,7 @@ class OnboardPatientViews(generics.GenericAPIView):
         try:
             data = request.data
             temp_password = request.data["password"]
-            serializer = self.serializer_class(data)
+            serializer = self.serializer_class(data=data)
             if not serializer.is_valid():
                 return Response(
                     {
@@ -95,13 +95,21 @@ class OnboardPatientViews(generics.GenericAPIView):
                 },
                 status=status.HTTP_201_CREATED
             )
-
+        except TypeError as e:
+            return Response(
+                {
+                    "message": "failure",
+                    "data": "null",
+                    "errors": f"{e} is required"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
             return Response(
                 {
                     "message": "failure",
                     "data": "null",
-                    "errors": e
+                    "errors": f"{e}"
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )

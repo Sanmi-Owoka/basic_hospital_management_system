@@ -25,7 +25,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class OnboardPatientSerializer(serializers.ModelSerializer):
-    firstname = serializers.CharField(max_length=50, required=True)
+    first_name = serializers.CharField(max_length=50, required=True)
     last_name = serializers.CharField(max_length=50, required=True)
     username = serializers.CharField(max_length=50, required=True)
     password = serializers.CharField(max_length=50, required=True, min_length=3, write_only=True)
@@ -36,7 +36,7 @@ class OnboardPatientSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "username",
-            "temp_password",
+            "password"
         ]
         read_only_fields = [
             "date_joined"

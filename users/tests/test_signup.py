@@ -4,8 +4,8 @@ from .test_setup import *
 class TestDoctorSignup(TestSetUp):
     def test_signup_correctly(self):
         client = APIClient()
-        response = client.post(self.register_url, self.register_data)
-        print(response.txt)
+        response = client.post(self.register_url, self.register_data, format='json')
+        # print(response.txt)
         assert response.status_code == 201
 
     def test_signup_without_data(self):
@@ -16,6 +16,6 @@ class TestDoctorSignup(TestSetUp):
             "password": ""
         }
         client = APIClient()
-        response = client.post(self.register_url, self.register_data)
-        print(response.txt)
+        response = self.client.post(self.register_url, self.register_data, format='json')
+        print(response.json(), response.status_code)
         assert response.status_code == 400

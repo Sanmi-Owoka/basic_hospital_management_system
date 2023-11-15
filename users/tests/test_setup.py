@@ -8,7 +8,7 @@ pytestmark = pytest.mark.django_db
 class TestSetUp(APITestCase):
 
     def setUp(self):
-        self.register_url = "/api/v1/users/doctor/signup/"
+        self.register_url = "doctor/signup/"
         self.login_url = "/api/v1/users/login/"
         self.change_password_url = "/api/v1/users/change_password/"
         self.update_profile_url = "/api/v1/users/update_profile/"
