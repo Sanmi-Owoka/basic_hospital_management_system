@@ -1,5 +1,5 @@
-As part of Ayulla’s Software Engineering Tryout Task (ASETT), You are
-tasked with creating an API Hospital Management System using Django
+
+A basic API Hospital Management System using Django
 Framework. The project needs to implement the following features:
 
 - Doctors can signup on the system while Patients can’t.
